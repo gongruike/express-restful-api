@@ -15,9 +15,29 @@ router_v2.use('/user', users);
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Route
+// Public
+
+// Access control layer
+app.use(function(req, res, next) {
+
+  if (req.url.indexOf('v1') > 0) {
+
+    // 需要授权的接口
+    if ((req.method === 'GET') || (req.method === 'POST')) {
+      // 授权是否成功
+      next()
+    } else {
+      res.status(401).json({error: 'not authed'})
+    }
+  } else {
+    // 不需要授权的接口
+    next()
+  }
+});
+
+//
 app.use('/v1', router_v1)
 app.use('/v2', router_v2)
 
